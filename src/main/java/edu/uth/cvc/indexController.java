@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CvcApplication {
+public class indexController {
 
     public static void main(String[] args) {
-        SpringApplication.run(CvcApplication.class, args);
+        SpringApplication.run(indexController.class, args);
     }
 
 }
