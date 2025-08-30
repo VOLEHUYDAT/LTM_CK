@@ -1,129 +1,240 @@
-/**
- * Main
- */
+(function ($) {
+    "use strict";
 
-'use strict';
+    // Spinner
+    var spinner = function () {
+        setTimeout(function () {
+            if ($('#spinner').length > 0) {
+                $('#spinner').removeClass('show');
+            }
+        }, 1);
+    };
+    spinner(0);
+    
+    
+    // Initiate the wowjs
+    new WOW().init();
 
-let menu,
-  animate;
-document.addEventListener('DOMContentLoaded', function () {
-  // class for ios specific styles
-  if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-    document.body.classList.add('ios');
+
+    // Sticky Navbar
+    $(window).scroll(function () {
+        if ($(this).scrollTop() > 45) {
+            $('.navbar').addClass('sticky-top shadow-sm');
+        } else {
+            $('.navbar').removeClass('sticky-top shadow-sm');
+        }
+    });
+
+
+    // Hero Header carousel
+    $(".header-carousel").owlCarousel({
+        animateOut: 'slideOutDown',
+        items: 1,
+        autoplay: true,
+        smartSpeed: 1000,
+        dots: false,
+        loop: true,
+        nav : true,
+        navText : [
+            '<i class="bi bi-arrow-left"></i>',
+            '<i class="bi bi-arrow-right"></i>'
+        ],
+    });
+
+
+    // International carousel
+    $(".testimonial-carousel").owlCarousel({
+        autoplay: true,
+        items: 1,
+        smartSpeed: 1500,
+        dots: true,
+        loop: true,
+        margin: 25,
+        nav : true,
+        navText : [
+            '<i class="bi bi-arrow-left"></i>',
+            '<i class="bi bi-arrow-right"></i>'
+        ]
+    });
+
+
+    // Modal Video
+    $(document).ready(function () {
+        var $videoSrc;
+        $('.btn-play').click(function () {
+            $videoSrc = $(this).data("src");
+        });
+        console.log($videoSrc);
+
+        $('#videoModal').on('shown.bs.modal', function (e) {
+            $("#video").attr('src', $videoSrc + "?autoplay=1&amp;modestbranding=1&amp;showinfo=0");
+        })
+
+        $('#videoModal').on('hide.bs.modal', function (e) {
+            $("#video").attr('src', $videoSrc);
+        })
+    });
+
+
+    // testimonial carousel
+    $(".testimonial-carousel").owlCarousel({
+        autoplay: true,
+        smartSpeed: 1000,
+        center: true,
+        dots: true,
+        loop: true,
+        margin: 25,
+        nav : true,
+        navText : [
+            '<i class="bi bi-arrow-left"></i>',
+            '<i class="bi bi-arrow-right"></i>'
+        ],
+        responsiveClass: true,
+        responsive: {
+            0:{
+                items:1
+            },
+            576:{
+                items:1
+            },
+            768:{
+                items:1
+            },
+            992:{
+                items:1
+            },
+            1200:{
+                items:1
+            }
+        }
+    });
+
+    
+    
+   // Back to top button
+   $(window).scroll(function () {
+    if ($(this).scrollTop() > 300) {
+        $('.back-to-top').fadeIn('slow');
+    } else {
+        $('.back-to-top').fadeOut('slow');
+    }
+    });
+    $('.back-to-top').click(function () {
+        $('html, body').animate({scrollTop: 0}, 0, 'easeInOutExpo');
+        return false;
+    });
+
+
+})(jQuery);
+
+function loadPage(page) {
+    console.log("Loading page:", page);
+  
+    // Kiểm tra nếu page đã có '/pages/', chỉ fetch(page) thôi
+    let url = page.startsWith("/pages/") ? page : "/pages/" + page;
+  
+    fetch(url)
+      .then((response) => response.text())
+      .then((html) => (document.getElementById("content").innerHTML = html))
+      .catch((error) => console.error("Fetch error:", error));
   }
+  
+  document.addEventListener("DOMContentLoaded", function () {
+    const navItems = document.querySelectorAll(".nav-item");
+    const content = document.getElementById("content");
+  
+    const pages = {
+      "Trang chủ": "/pages/home",
+      "Dịch vụ tiêm chủng": "/pages/index_GioiThieu",
+      "Bảng giá": "/pages/banggia",
+      "Cẩm nang tiêm chủng": "/pages/camnangtiemchung",
+      "Gói vaccine": "/pages/goivaccinetreem", 
+      "Tin tức": "/pages/indexTT",
+      // "Tin tức": "<h1>Tin tức</h1><p>Các tin tức mới nhất về tiêm vaccine.</p>",
+    //   "Đặt lịch": "/pages/index_DatLich",
+    };
+  
+    // Xử lý click trên navbar (nếu có)
+    navItems.forEach((item) => {
+      item.addEventListener("click", function () {
+        // Xóa trạng thái active của tất cả nav-items
+        navItems.forEach((i) => i.classList.remove("active"));
+  
+        // Thêm active vào nav-item được chọn
+        item.classList.add("active");
+  
+        // Hiển thị nội dung tương ứng
+        const text = item.innerText.trim();
+        if (pages[text]) {
+            console.log("Calling loadPage with:", pages[text]);
+            loadPage(pages[text]);
+          } else {
+            console.log("No page found for:", text);
+          }
+      });
+    });
+  });
+
+// Đăng nhập và Đăng ký
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const loginData = {
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+    };
+
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);  // Kiểm tra dữ liệu nhận được từ API
+        if (data.token) {
+            localStorage.setItem("email", data.email);
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            
+            alert('Đăng nhập thành công!');
+            location.reload();
+        } else {
+            console.log("Không có token trong phản hồi:", data);  // Nếu không có token
+        }
+    })
+    .catch(error => {
+        var myModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
+        myModal.show();
+    });
 });
 
-(function () {
-  // Initialize menu
-  //-----------------
-
-  let layoutMenuEl = document.querySelectorAll('#layout-menu');
-  layoutMenuEl.forEach(function (element) {
-    menu = new Menu(element, {
-      orientation: 'vertical',
-      closeChildren: false
-    });
-    // Change parameter to true if you want scroll animation
-    window.Helpers.scrollToActive((animate = false));
-    window.Helpers.mainMenu = menu;
-  });
-
-  // Initialize menu togglers and bind click on each
-  let menuToggler = document.querySelectorAll('.layout-menu-toggle');
-  menuToggler.forEach(item => {
-    item.addEventListener('click', event => {
-      event.preventDefault();
-      window.Helpers.toggleCollapsed();
-    });
-  });
-
-  // Display menu toggle (layout-menu-toggle) on hover with delay
-  let delay = function (elem, callback) {
-    let timeout = null;
-    elem.onmouseenter = function () {
-      // Set timeout to be a timer which will invoke callback after 300ms (not for small screen)
-      if (!Helpers.isSmallScreen()) {
-        timeout = setTimeout(callback, 300);
-      } else {
-        timeout = setTimeout(callback, 0);
-      }
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const registerData = {
+        fullName: document.getElementById('registerFullName').value,
+        email: document.getElementById('registerEmail').value,
+        phone: document.getElementById('registerPhone').value,
+        password: document.getElementById('registerPassword').value
     };
 
-    elem.onmouseleave = function () {
-      // Clear any timers set to timeout
-      document.querySelector('.layout-menu-toggle').classList.remove('d-block');
-      clearTimeout(timeout);
-    };
-  };
-  if (document.getElementById('layout-menu')) {
-    delay(document.getElementById('layout-menu'), function () {
-      // not for small screen
-      if (!Helpers.isSmallScreen()) {
-        document.querySelector('.layout-menu-toggle').classList.add('d-block');
-      }
+    fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(registerData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            alert('Đăng ký thành công!');
+            location.reload();
+        }
+    })
+    .catch(error => {
+        alert('Đăng ký thất bại!');
     });
-  }
-
-  // Display in main menu when menu scrolls
-  let menuInnerContainer = document.getElementsByClassName('menu-inner'),
-    menuInnerShadow = document.getElementsByClassName('menu-inner-shadow')[0];
-  if (menuInnerContainer.length > 0 && menuInnerShadow) {
-    menuInnerContainer[0].addEventListener('ps-scroll-y', function () {
-      if (this.querySelector('.ps__thumb-y').offsetTop) {
-        menuInnerShadow.style.display = 'block';
-      } else {
-        menuInnerShadow.style.display = 'none';
-      }
-    });
-  }
-
-  // Init helpers & misc
-  // --------------------
-
-  // Init BS Tooltip
-  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
-  });
-
-  // Accordion active class
-  const accordionActiveFunction = function (e) {
-    if (e.type == 'show.bs.collapse' || e.type == 'show.bs.collapse') {
-      e.target.closest('.accordion-item').classList.add('active');
-    } else {
-      e.target.closest('.accordion-item').classList.remove('active');
-    }
-  };
-
-  const accordionTriggerList = [].slice.call(document.querySelectorAll('.accordion'));
-  const accordionList = accordionTriggerList.map(function (accordionTriggerEl) {
-    accordionTriggerEl.addEventListener('show.bs.collapse', accordionActiveFunction);
-    accordionTriggerEl.addEventListener('hide.bs.collapse', accordionActiveFunction);
-  });
-
-  // Auto update layout based on screen size
-  window.Helpers.setAutoUpdate(true);
-
-  // Toggle Password Visibility
-  window.Helpers.initPasswordToggle();
-
-  // Speech To Text
-  window.Helpers.initSpeechToText();
-
-  // Manage menu expanded/collapsed with templateCustomizer & local storage
-  //------------------------------------------------------------------
-
-  // If current layout is horizontal OR current window screen is small (overlay menu) than return from here
-  if (window.Helpers.isSmallScreen()) {
-    return;
-  }
-
-  // If current layout is vertical and current window screen is > small
-
-  // Auto update menu collapsed/expanded based on the themeConfig
-      window.Helpers.setCollapsed(true, false);
-})();
-// Utils
-function isMacOS() {
-  return /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
-}
+});
