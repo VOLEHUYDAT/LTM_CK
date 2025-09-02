@@ -12,6 +12,7 @@ import ut.edu.project_java.security.JwtService;
 import ut.edu.project_java.dtos.AuthResponse;
 import ut.edu.project_java.dtos.RegisterRequest;
 import ut.edu.project_java.dtos.LoginRequest;
+import ut.edu.project_java.dtos.LoginResponse;
 
 @Service
 public class AuthService {
@@ -36,16 +37,23 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER);
-
+        user.setRole(Role.USER); // Mặc định là USER
 
         userRepository.save(user);
 
-        // Tạo token JWT từ email (thay vì fullName)
         String token = jwtService.generateToken(user.getEmail());
 
-        return new AuthResponse(token, "Đăng ký thành công!", user.getEmail());
-    }
+        LoginResponse loginResponse = new LoginResponse(
+            user.getId(),
+            user.getFullName(),
+            user.getEmail(),
+            user.getPhone(),
+            user.getRole().name()
+        );
+
+        return new AuthResponse(token, "Đăng ký thành công!", user.getEmail(), loginResponse);
+}
+
 
     // Xử lý đăng nhập
     public AuthResponse login(LoginRequest request) {
@@ -56,9 +64,17 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không đúng!");
         }
 
-        // Tạo token JWT từ email
         String token = jwtService.generateToken(user.getEmail());
 
-        return new AuthResponse(token, "Đăng nhập thành công!", user.getEmail());
+        
+        LoginResponse loginResponse = new LoginResponse(
+            user.getId(),
+            user.getFullName(),
+            user.getEmail(),
+            user.getPhone(),
+            user.getRole().name()  // Trả về "USER", "ADMIN" hoặc "STAFF"
+        );
+
+        return new AuthResponse(token, "Đăng nhập thành công!", user.getEmail(), loginResponse);
     }
 }

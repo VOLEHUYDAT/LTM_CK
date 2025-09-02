@@ -17,18 +17,16 @@ public class SecurityConfig {
         http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/**").permitAll()
-            .requestMatchers("/api/**").authenticated()
-            .requestMatchers("/", "/index", "/indexLogin","/admin", "/api/auth/**").permitAll()
-            .requestMatchers("/assets/**", "/lib/**", "/static/**").permitAll()
-            .requestMatchers("/pages/**").permitAll()
-            .requestMatchers("/adminPages/**").permitAll() 
-            .requestMatchers("/**/*.js", "/**/*.css", "/**/*.jpg", "/**/*.png").permitAll()
-            .anyRequest().authenticated()
+        .requestMatchers("/ws/**").permitAll()
+        .requestMatchers("/", "/index", "/indexLogin", "/admin", "/api/auth/**").permitAll()
+        .requestMatchers("/api/**").permitAll()
+        .requestMatchers("/assets/**", "/lib/**", "/static/**").permitAll()
+        .requestMatchers("/pages/**", "/adminPages/**").permitAll()
+        .requestMatchers("/**/*.js", "/**/*.css", "/**/*.jpg", "/**/*.png").permitAll()
+        .anyRequest().authenticated()
         )
             .formLogin(form -> form.disable())  // Tắt form login mặc định
             .httpBasic(basic -> basic.disable()); // Tắt basic auth
-        
         return http.build();
     }
 
