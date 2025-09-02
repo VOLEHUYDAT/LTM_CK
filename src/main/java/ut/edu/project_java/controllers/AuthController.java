@@ -1,6 +1,5 @@
 package ut.edu.project_java.controllers;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,22 +10,28 @@ import ut.edu.project_java.dtos.LoginRequest;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
+@CrossOrigin(origins = "*") // Cho phép gọi từ frontend khác domain nếu cần
 public class AuthController {
-    
+
+    private final AuthService authService;
+
+    // ✅ Constructor để Spring tự inject AuthService
     @Autowired
-    private AuthService authService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     // API Đăng ký
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         try {
             AuthResponse response = authService.register(request);
-            System.out.println("Register successful: " + response); // Để debug
+            System.out.println("✅ Register successful: " + response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(new AuthResponse(null, e.getMessage(), null));
+            return ResponseEntity.badRequest()
+                    .body(new AuthResponse(null, e.getMessage(), null, null));
         }
     }
 
@@ -35,11 +40,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         try {
             AuthResponse response = authService.login(request);
-            System.out.println("Login successful: " + response); // Để debug
+            System.out.println("✅ Login successful: " + response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(new AuthResponse(null, e.getMessage(), null));
+            return ResponseEntity.badRequest()
+                    .body(new AuthResponse(null, e.getMessage(), null, null));
         }
     }
 }
