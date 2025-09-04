@@ -58,7 +58,7 @@ function initProgressPage() {
   ];
 
   // Gán tên người dùng cố định (hoặc sau này từ localStorage / token)
-  const user = "Nguyễn Văn A";
+  const user = "Trần Hoàng Thương";
 
   function renderUserProgress() {
     console.log("JS đã chạy!")
