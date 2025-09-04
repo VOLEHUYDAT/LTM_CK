@@ -64,4 +64,3 @@ function loadLichTiemTable() {
   }
 
   loadLichTiemTable();
-  setInterval(loadLichTiemTable, 100000);

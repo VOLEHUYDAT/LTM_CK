@@ -52,4 +52,4 @@ function loadTaiKhoanTable() {
   }
 
 
-  loadTaiKhoanTable();
+loadTaiKhoanTable();
